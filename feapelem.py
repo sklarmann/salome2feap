@@ -1,6 +1,7 @@
 
 import numpy
 
+
 # Base Element class
 class feapelem:
 
@@ -16,20 +17,20 @@ class feapelem:
     def getMat(self):
         return self.mat
 
-    def setNum(self,num):
+    def setNum(self, num):
         self.num = num
 
-    def setMaterial(self,num):
+    def setMaterial(self, num):
         self.mat = num
 
-    def addNodes(self,nodes):
+    def addNodes(self, nodes):
         for i in nodes:
             self.ids.append(i)
 
     def numberOfNodes(self):
         return len(self.ids)
 
-    def toFile(self,fileObj,numLines):
+    def toFile(self, fileObj, numLines):
         s = str(self.num)
         fileObj.write(s)
         fileObj.write(',')
@@ -43,7 +44,7 @@ class feapelem:
             fileObj.write(s)
             fileObj.write(',')
             entry = entry + 1
-            if entry >=16:
+            if entry >= 16:
                 entry = 0
                 cline = cline + 1
                 fileObj.write('\n')
@@ -58,9 +59,9 @@ class feapelem:
 # 4 node Face Element
 class feapelemQU4(feapelem):
 
-    def setInitNodes(self,nodes):
-        if len(nodes)!=4:
-            print 'Error when trying to add 9 node element'
+    def setInitNodes(self, nodes):
+        if len(nodes) != 4:
+            print('Error when trying to add 9 node element')
         else:
             for i in range(4):
                 self.ids.append(nodes[i])
@@ -69,7 +70,6 @@ class feapelemQU4(feapelem):
         tconn = []
         for i in self.ids:
             tconn.append(i)
-
 
         self.ids[0] = tconn[0]
         self.ids[1] = tconn[1]
@@ -83,9 +83,9 @@ class feapelemQU4(feapelem):
 # 9 node Face Element
 class feapelemQU9(feapelem):
 
-    def setInitNodes(self,nodes):
-        if len(nodes)!=9:
-            print 'Error when trying to add 9 node element'
+    def setInitNodes(self, nodes):
+        if len(nodes) != 9:
+            print('Error when trying to add 9 node element')
         else:
             for i in range(9):
                 self.ids.append(nodes[i])
@@ -94,7 +94,6 @@ class feapelemQU9(feapelem):
         tconn = []
         for i in self.ids:
             tconn.append(i)
-
 
         self.ids[0] = tconn[0]
         self.ids[1] = tconn[4]
@@ -110,14 +109,11 @@ class feapelemQU9(feapelem):
         tconn = []
 
 
-
-
 # 8 node Volume Element
 class feapelemHE8(feapelem):
-
-    def setInitNodes(self,nodes):
+    def setInitNodes(self, nodes):
         if len(nodes) != 8:
-            print 'Error when trying to add 8 node element'
+            print('Error when trying to add 8 node element')
         else:
             for i in range(8):
                 self.ids.append(nodes[i])
@@ -136,12 +132,12 @@ class feapelemHE8(feapelem):
         self.ids[6] = tconn[5]
         self.ids[7] = tconn[6]
 
+
 # 27 node Volume Element
 class feapelemH27(feapelem):
-
-    def setInitNodes(self,nodes):
+    def setInitNodes(self, nodes):
         if len(nodes) != 27:
-            print 'Error when trying to add 27 node element'
+            print('Error when trying to add 27 node element')
         else:
             for i in range(27):
                 self.ids.append(nodes[i])
@@ -179,21 +175,21 @@ class feapelemH27(feapelem):
         self.ids[25] = tconn[13]
         self.ids[26] = tconn[6]
 
-
-    def reorientate(self,nodes,dire):
-
+    def reorientate(self, nodes, dire):
         # face 1
         node1 = nodes[self.ids[0]-1]
         node2 = nodes[self.ids[2]-1]
         node3 = nodes[self.ids[6]-1]
 
-        x = [node2.xval()-node1.xval(),node2.yval()-node1.yval(),node2.zval()-node1.zval()]
-        y = [node3.xval()-node1.xval(),node3.yval()-node1.yval(),node3.zval()-node1.zval()]
+        x = [node2.xval()-node1.xval(), node2.yval()-node1.yval(),
+             node2.zval()-node1.zval()]
+        y = [node3.xval()-node1.xval(), node3.yval()-node1.yval(),
+             node3.zval()-node1.zval()]
 
-        dvec = numpy.cross(x,y)
+        dvec = numpy.cross(x, y)
         dlen = numpy.linalg.norm(dvec)
-        if(abs(dvec[dire-1])>=0.9*dlen):
-            #found
+        if(abs(dvec[dire-1]) >= 0.9*dlen):
+            # found
             print("found 1 nothin to do")
         else:
             # face 2
@@ -201,13 +197,15 @@ class feapelemH27(feapelem):
             node2 = nodes[self.ids[2]-1]
             node3 = nodes[self.ids[18]-1]
 
-            #print node2.xval()
-            x = [node2.xval()-node1.xval(),node2.yval()-node1.yval(),node2.zval()-node1.zval()]
-            y = [node3.xval()-node1.xval(),node3.yval()-node1.yval(),node3.zval()-node1.zval()]
+            # print node2.xval()
+            x = [node2.xval()-node1.xval(), node2.yval()-node1.yval(),
+                 node2.zval()-node1.zval()]
+            y = [node3.xval()-node1.xval(), node3.yval()-node1.yval(),
+                 node3.zval()-node1.zval()]
 
-            dvec = numpy.cross(x,y)
+            dvec = numpy.cross(x, y)
             dlen = numpy.linalg.norm(dvec)
-            if(abs(dvec[dire-1])>=0.9*dlen):
+            if(abs(dvec[dire-1]) >= 0.9*dlen):
                 print("found, reorder")
                 node1 = nodes[self.ids[0]-1]
                 node2 = nodes[self.ids[6]-1]

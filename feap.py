@@ -1,12 +1,13 @@
-
 from feapnode import *
 from feapelem import *
-from feapelem import *
+# import feapnode
+# import feapelem
+
 
 class feap:
     """docstring fs feap."""
-    def __init__(self):
 
+    def __init__(self):
         self.elems = []
         self.nodes = []
         self.nummat = 0
@@ -19,15 +20,14 @@ class feap:
         self.cons = []
         self.boun = []
         self.macro = []
-        self.load=[]
-        self.ebou=[]
+        self.load = []
+        self.ebou = []
         self.solverparam = ''
 
-
-    def addMate(self,mate):
+    def addMate(self, mate):
         self.mate.append(mate)
 
-    def setSolver(self,param):
+    def setSolver(self, param):
         temp = 'solv\n'
         for i in param:
             temp = temp + str(i) + ','
@@ -35,7 +35,7 @@ class feap:
         temp = temp + '\n'
         self.solverparam = temp
 
-    def setEbou(self,dire,pos,blist):
+    def setEbou(self, dire, pos, blist):
         temp = []
         temp.append(dire)
         temp.append(pos)
@@ -44,46 +44,45 @@ class feap:
 
         self.ebou.append(temp)
 
-
-    def addCons(self,cons,val):
+    def addCons(self, cons, val):
         temp = cons + "=" + str(val)
         self.cons.append(temp)
 
-    def addBoun(self,node,dofs):
+    def addBoun(self, node, dofs):
         temp = str(node) + ','
         for i in dofs:
             temp = temp + ',' + str(i)
 
         self.boun.append(temp)
 
-    def addLoad(self,num,dofs):
+    def addLoad(self, num, dofs):
         temp = str(num) + ','
         for i in dofs:
             temp = temp + ',' + str(i)
 
         self.load.append(temp)
 
-    def addMacroLine(self,line):
+    def addMacroLine(self, line):
         self.macro.append(line)
 
-    def addNodesSalome(self,Mesh):
+    def addNodesSalome(self, Mesh):
         for i in range(Mesh.NbNodes()):
             coor = Mesh.GetNodeXYZ(i+1)
-            self.nodes.append(feapnode(i+1,coor))
+            self.nodes.append(feapnode(i+1, coor))
 
-    def setMatGroupSalome(self,Group,Matnum):
+    def setMatGroupSalome(self, Group, Matnum):
         name = Group.GetName()
         if name not in self.groups:
-            print 'Error: Group does not exist'
+            print('Error: Group does not exist')
 
         for i in self.groups[name]:
             self.elems[i-1].setMaterial(Matnum)
 
-    def addNodesToElementGroupSalome(self,Group,Nodes):
+    def addNodesToElementGroupSalome(self, Group, Nodes):
         name = Group.GetName()
 
         if name not in self.groups:
-            print 'Error: Group does not exist'
+            print('Error: Group does not exist')
 
         for i in self.groups[name]:
             self.elems[i-1].addNodes(Nodes)
@@ -92,9 +91,7 @@ class feap:
         if nn > self.nen:
             self.nen = nn
 
-
-    def reorder(self,Group,Ordering):
-
+    def reorder(self, Group, Ordering):
         name = Group.GetName()
         if Ordering == 'mult':
             for i in self.groups[name]:
@@ -103,19 +100,19 @@ class feap:
             for i in self.groups[name]:
                 self.elems[i-1].reorderFeap()
         else:
-            print 'Error: Ordering Type unkown'
+            print('Error: Ordering Type unkown')
 
 # Mesh, Group of Elements, SMESH.EntityType
-    def addElemsSalome(self,Mesh,Group,Types):
+    def addElemsSalome(self, Mesh, Group, Types):
         name = Group.GetName()
         elems = Group.GetIDs()
-        print name
+        print(name)
         if name not in self.groups:
             self.groups[name] = []
 
         for i in elems:
             eltype = Mesh.GetElementGeomType(i)
-            if eltype == Types._item(18): # Entity_TriQuad_Hexa
+            if eltype == Types._item(18):  # Entity_TriQuad_Hexa
                 if(self.nen < 27):
                     self.nen = 27
                 elem = feapelemH27()
@@ -124,9 +121,9 @@ class feap:
                 self.elems.append(elem)
                 num = len(self.elems)
                 elem.setNum(num)
-                #elem.reorder()
+                # elem.reorder()
                 self.groups[name].append(num)
-            elif eltype == Types._item(16): # Entity_TriQuad_Hexa
+            elif eltype == Types._item(16):  # Entity_TriQuad_Hexa
                 if(self.nen < 8):
                     self.nen = 8
                 elem = feapelemHE8()
@@ -135,9 +132,9 @@ class feap:
                 self.elems.append(elem)
                 num = len(self.elems)
                 elem.setNum(num)
-                #elem.reorder()
+                # elem.reorder()
                 self.groups[name].append(num)
-            elif eltype == Types._item(7): # Entity_Quadrangle
+            elif eltype == Types._item(7):  # Entity_Quadrangle
                 if(self.nen < 4):
                     self.nen = 4
                 elem = feapelemQU4()
@@ -146,9 +143,9 @@ class feap:
                 self.elems.append(elem)
                 num = len(self.elems)
                 elem.setNum(num)
-                #elem.reorder()
+                # elem.reorder()
                 self.groups[name].append(num)
-            elif eltype == Types._item(9): # Entity_BiQuad_Quadrangle
+            elif eltype == Types._item(9):  # Entity_BiQuad_Quadrangle
                 if(self.nen < 9):
                     self.nen = 9
                 elem = feapelemQU9()
@@ -157,32 +154,27 @@ class feap:
                 self.elems.append(elem)
                 num = len(self.elems)
                 elem.setNum(num)
-                #elem.reorder()
+                # elem.reorder()
                 self.groups[name].append(num)
 
-
-
-
-
-    def addNodes(self,nodes):
-        #print nodes.keys()
+    def addNodes(self, nodes):
+        # print nodes.keys()
         nums = nodes['NUM']
-        coors= nodes['COO']
+        coors = nodes['COO']
         nnodes = len(nums)
-        x=[]
-        y=[]
-        z=[]
+        x = []
+        y = []
+        z = []
         for i in range(nnodes):
             x.append(coors[i])
             y.append(coors[i+nnodes])
             z.append(coors[i+nnodes*2])
 
         for i in nums:
-            temp = [x[i-1],y[i-1],z[i-1]]
-
+            temp = [x[i-1], y[i-1], z[i-1]]
             self.nodes.append(feapnode(i,temp))
 
-    def addElems(self,elems):
+    def addElems(self, elems):
         keys = elems.keys()
         for i in keys:
             if i == 'H27':
@@ -195,8 +187,7 @@ class feap:
                 data = elems[i]
                 self.add9FaceElement(data)
 
-
-    def GroupToMat(self,mapping):
+    def GroupToMat(self, mapping):
         for i in mapping:
             if i in self.groups:
                 num = mapping[i]
@@ -204,38 +195,34 @@ class feap:
                     #print j
                     self.elems[j-1].setMaterial(num)
 
-
-    def reorientateGroup(self,group):
+    def reorientateGroup(self, group):
         for j in self.groups[group]:
-            self.elems[j-1].reorientate(self.nodes,1)
+            self.elems[j-1].reorientate(self.nodes, 1)
 
-    def setNumMat(self,num):
+    def setNumMat(self, num):
         self.nummat = num
 
-    def setNdm(self,ndm):
+    def setNdm(self, ndm):
         self.ndm = ndm
 
-    def setNdf(self,ndf):
+    def setNdf(self, ndf):
         self.ndf = ndf
 
-    def setNen(self,nen):
+    def setNen(self, nen):
         self.nen = nen
 
     def numNodes(self):
-        print len(self.nodes)
+        print(len(self.nodes))
 
     def printNodes(self):
         for i in self.nodes:
             i.printNode()
 
-
-
-    def addNodesToElementGroup(self,group,nodes):
+    def addNodesToElementGroup(self, group, nodes):
         for i in self.groups[group]:
             self.elems[i-1].addNodes(nodes)
 
-
-    def toFile(self,fileObj):
+    def toFile(self, fileObj):
         fileObj.write('feap\n')
         temp = str(len(self.nodes)) + ',' + str(len(self.elems)) + ',' \
             + str(self.nummat) + ',' + str(self.ndm) + ',' + str(self.ndf) \
@@ -243,8 +230,6 @@ class feap:
 
         fileObj.write(temp)
         fileObj.write('\n\n')
-
-
         fileObj.write('coor\n')
 
         for i in self.nodes:
@@ -257,17 +242,13 @@ class feap:
         if self.nen > 13 and self.nen < 29:
             numLines = 2
         elif self.nen >= 29:
-            numLines=3
+            numLines = 3
         for i in self.elems:
             i.toFile(fileObj, numLines)
 
         fileObj.write('\n\n')
-
         fileObj.write(self.solverparam)
-
         fileObj.write('\n\n')
-
-
         fileObj.write('cons\n')
         for i in self.cons:
             fileObj.write(i)
@@ -278,7 +259,7 @@ class feap:
         for i in self.mate:
             i.toFile(fileObj)
 
-        if len(self.boun) >=1:
+        if len(self.boun) >= 1:
             fileObj.write('boun\n')
             for i in self.boun:
                 fileObj.write(i)
@@ -301,24 +282,19 @@ class feap:
                 fileObj.write('\n')
             fileObj.write('\n\n')
 
-
-
-
         # fileObj.write('end\n\n\n')
 
         for i in self.macro:
             fileObj.write(i)
             fileObj.write('\n')
 
-
-    def add27VolElement(self,data):
-
+    def add27VolElement(self, data):
         nodes = data['NOD']
         group = data['FAM']
         pos = 0
         numels = len(group)
         for i in group:
-            if i!=0:
+            if i != 0:
                 temp = feapelemH27()
                 ids = []
                 for j in range(27):
@@ -338,14 +314,14 @@ class feap:
 
             pos = pos + 1
 
-    def add8VolElement(self,data):
+    def add8VolElement(self, data):
         nodes = data['NOD']
         group = data['FAM']
 
         pos = 0
         numels = len(group)
         for i in group:
-            if i!=0:
+            if i != 0:
                 temp = feapelemHE8()
                 ids = []
                 for j in range(8):
@@ -365,14 +341,14 @@ class feap:
 
             pos = pos + 1
 
-    def add9FaceElement(self,data):
+    def add9FaceElement(self, data):
         nodes = data['NOD']
         group = data['FAM']
 
         pos = 0
         numels = len(group)
         for i in group:
-            if i!= 0:
+            if i != 0:
                 temp = feapelemQU9()
                 ids = []
                 for j in range(9):
